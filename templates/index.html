@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4">📚 Филиал ВГСО "Северо-Запада"</h1>
+    <p class="lead">База документов оперативного состава</p>
+    <div class="row mt-5">
+        {% for key, name in categories.items() %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ name }}</h5>
+                    <a href="{{ url_for('show_documents', category=key) }}" class="btn btn-primary">Перейти →</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
