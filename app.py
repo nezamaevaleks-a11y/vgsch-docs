@@ -293,26 +293,46 @@ def admin_panel():
 
 @app.route('/admin/upload', methods=['POST'])
 def admin_upload():
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Нет доступа'})
+    try:
+        # Проверяем авторизацию
+        if not session.get('admin_logged_in'):
+            flash('Нет доступа')
+            return redirect(url_for('admin_login'))
 
-    files = request.files.getlist('files[]')
-    category = request.form.get('category')
-    settings = load_settings()
+        # Получаем файлы и категорию
+        files = request.files.getlist('files[]')
+        category = request.form.get('category')
 
-    if category not in settings['categories']:
-        return jsonify({'success': False, 'error': 'Неверная категория'})
+        print(f"=== ЗАГРУЗКА ФАЙЛОВ ===")
+        print(f"Файлов получено: {len(files)}")
+        print(f"Категория: {category}")
 
-    success_count = 0
-    for file in files:
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], category, filename)
-            file.save(file_path)
-            success_count += 1
+        # Проверяем категорию
+        settings = load_settings()
+        if category not in settings['categories']:
+            flash('Неверная категория')
+            return redirect(url_for('admin_panel'))
 
-    return jsonify({'success': True, 'message': f'Загружено {success_count} файлов'})
+        # Создаём папку если нет
+        category_path = os.path.join(app.config['UPLOAD_FOLDER'], category)
+        os.makedirs(category_path, exist_ok=True)
 
+        success_count = 0
+        for file in files:
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(category_path, filename)
+                file.save(file_path)
+                success_count += 1
+                print(f"✅ Сохранён: {filename}")
+
+        flash(f'✅ Загружено {success_count} файлов')
+        return redirect(url_for('admin_panel'))
+
+    except Exception as e:
+        print(f"❌ ОШИБКА: {str(e)}")
+        flash(f'❌ Ошибка: {str(e)}')
+        return redirect(url_for('admin_panel'))
 
 @app.route('/admin/delete/<category>/<filename>')
 def admin_delete(category, filename):
