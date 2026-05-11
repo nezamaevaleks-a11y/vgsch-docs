@@ -8,32 +8,26 @@
     <style>
         /* --- Стили для фона с логотипом --- */
         body {
-            /* 1. Задаём фоновое изображение (логотип) */
             background-image: url("{{ url_for('static', filename='logo.jpg') }}");
-            /* 2. Запрещаем повторение картинки */
             background-repeat: no-repeat;
-            /* 3. Картинка масштабируется, занимая весь экран, но не обрезается */
-            background-size: cover;
-            /* 4. Картинка всегда по центру */
-            background-position: center center;
-            /* 5. Делаем фон фиксированным при прокрутке */
+            /* Логотип не на весь экран, а в правом нижнем углу, поменьше */
+            background-size: 350px;
+            background-position: right bottom;
             background-attachment: fixed;
-            /* 6. Важно! Здесь добавляем основной цвет фона, который будет виден,
-                  пока грузится картинка. А также как "подложка" для текста. */
+            /* Светлый фон-подложка */
             background-color: {{ background_color }};
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Добавляем тёмную полупрозрачную подложку под весь контент,
-           чтобы текст на фоне картинки был чётким и читаемым. */
+        /* Полупрозрачный слой — СВЕТЛЕЕ (было 0.65, стало 0.4) */
         .content-wrapper {
-            background-color: rgba(0, 0, 0, 0.65); /* 65% чёрный слой поверх картинки */
-            min-height: 100vh; /* Растягиваем на всю высоту экрана */
+            background-color: rgba(0, 0, 0, 0.35); /* 35% чёрного — светлее */
+            min-height: 100vh;
         }
 
-        /* Стили для шапки и подвала делаем более прозрачными / контрастными */
+        /* Шапка и подвал чуть темнее для контраста */
         .navbar, .footer {
-            background-color: rgba(0, 0, 0, 0.75) !important; /* Тёмный, но не полностью */
+            background-color: rgba(0, 0, 0, 0.7) !important;
         }
 
         .footer a {
@@ -45,40 +39,39 @@
             text-decoration: underline;
         }
 
-        /* Для карточек с документами, чтобы они выделялись на тёмном фоне */
+        /* Карточки документов — тоже светлее */
         .card {
-            background-color: rgba(33, 37, 41, 0.85); /* Полупрозрачный тёмный фон */
-            backdrop-filter: blur(4px); /* Лёгкое размытие */
+            background-color: rgba(33, 37, 41, 0.75);
+            backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.2);
         }
         .card-title, .card-text {
-            color: #f8f9fa; /* Светлый текст */
+            color: #f8f9fa;
         }
-        /* Для простых текстовых блоков */
-        p, h1, h2, h3, h4, h5, h6, .lead, .text-muted {
+
+        /* Текст */
+        p, h1, h2, h3, h4, h5, h6, .lead {
             color: #f8f9fa !important;
         }
         .text-muted {
-            color: #ced4da !important;
+            color: #d4d4d4 !important;
         }
-
-        /* --- Логотип в шапке теперь не нужен, убираем или оставляем маленьким? --- */
-        /* Я его уберу, чтобы не мешал фоновому. Но можно и оставить очень маленьким. */
-        /* По желанию: скроем логотип, т.к. он теперь на фоне */
-        .navbar-brand img {
-            display: none;
-        }
-        /* Или вы можете удалить блок <a> с картинками из HTML ниже, я их закомментирую */
-        /* ------------------------------------------------------------ */
 
         /* Адаптивность */
         .search-form {
             min-width: 250px;
         }
+
+        /* На телефонах логотип ещё меньше */
         @media (max-width: 768px) {
-            .search-form {
-                width: 100%;
-                margin-top: 10px;
+            body {
+                background-size: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                background-size: 150px;
             }
         }
     </style>
@@ -87,20 +80,17 @@
 <body>
 <div class="content-wrapper">
     <!-- ШАПКА -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgba(0,0,0,0.75)">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgba(0,0,0,0.7)">
         <div class="container">
-            <!-- Название сайта по центру (можно оставить или убрать) -->
             <div class="text-center flex-grow-1">
                 <span class="navbar-brand mb-0" style="font-size: 1.5rem;">{{ site_title }}</span>
                 <small class="text-white-50 d-block d-none d-md-block">{{ site_subtitle }}</small>
             </div>
 
-            <!-- Кнопка меню для телефона -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Меню навигации (поиск и админка) -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item me-2">
@@ -117,7 +107,6 @@
         </div>
     </nav>
 
-    <!-- Основной контент -->
     <div class="container mt-4">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -133,7 +122,6 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- ПОДВАЛ -->
     <footer class="footer mt-4">
         <div class="container text-center">
             <div>
