@@ -10,22 +10,22 @@
         body {
             background-image: url("{{ url_for('static', filename='logo.jpg') }}");
             background-repeat: no-repeat;
-            /* Логотип не на весь экран, а в правом нижнем углу, поменьше */
-            background-size: 350px;
-            background-position: right bottom;
+            /* contain — логотип виден целиком, без обрезания */
+            background-size: contain;
+            /* По центру */
+            background-position: center center;
             background-attachment: fixed;
-            /* Светлый фон-подложка */
             background-color: {{ background_color }};
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Полупрозрачный слой — СВЕТЛЕЕ (было 0.65, стало 0.4) */
+        /* Полупрозрачный слой — светлее */
         .content-wrapper {
-            background-color: rgba(0, 0, 0, 0.35); /* 35% чёрного — светлее */
+            background-color: rgba(0, 0, 0, 0.35);
             min-height: 100vh;
         }
 
-        /* Шапка и подвал чуть темнее для контраста */
+        /* Шапка и подвал */
         .navbar, .footer {
             background-color: rgba(0, 0, 0, 0.7) !important;
         }
@@ -39,7 +39,7 @@
             text-decoration: underline;
         }
 
-        /* Карточки документов — тоже светлее */
+        /* Карточки документов */
         .card {
             background-color: rgba(33, 37, 41, 0.75);
             backdrop-filter: blur(4px);
@@ -57,22 +57,8 @@
             color: #d4d4d4 !important;
         }
 
-        /* Адаптивность */
         .search-form {
             min-width: 250px;
-        }
-
-        /* На телефонах логотип ещё меньше */
-        @media (max-width: 768px) {
-            body {
-                background-size: 200px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                background-size: 150px;
-            }
         }
     </style>
     {% block extra_css %}{% endblock %}
