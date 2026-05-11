@@ -15,7 +15,7 @@
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-success alert-dismissible fade show">
+            <div class="alert alert-info alert-dismissible fade show">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -32,7 +32,7 @@
         <a class="nav-link" data-bs-toggle="tab" href="#upload">📤 Загрузка</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#settings">⚙️ Настройки сайта</a>
+        <a class="nav-link" data-bs-toggle="tab" href="#settings">⚙️ Настройки</a>
     </li>
 </ul>
 
@@ -52,8 +52,8 @@
                             <tr>
                                 <th>Название файла</th>
                                 <th>Размер</th>
-                                <th>Дата изменения</th>
-                                <th>👁️ Просмотры</th>
+                                <th>Дата</th>
+                                <th>👁️</th>
                                 <th>Действия</th>
                             </tr>
                         </thead>
@@ -66,8 +66,7 @@
                                 <td>{{ doc.views }}</td>
                                 <td>
                                     <button class="btn btn-warning btn-sm" onclick="renameFile('{{ category_key }}', '{{ doc.name }}')" title="Переименовать">✏️</button>
-                                    <a href="{{ url_for('download_file', category=category_key, filename=doc.name) }}" class="btn btn-primary btn-sm" title="Скачать">📥</a>
-                                    <a href="/admin/delete/{{ category_key }}/{{ doc.name }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить файл {{ doc.name }}?')" title="Удалить">🗑️</a>
+                                    <a href="/admin/delete/{{ category_key }}/{{ doc.name }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить?')" title="Удалить">🗑️</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -75,29 +74,29 @@
                     </table>
                 </div>
                 {% else %}
-                <p class="text-muted">📭 В этой категории пока нет документов</p>
+                <p class="text-muted">Нет документов</p>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <!-- ==================== ВКЛАДКА: ЗАГРУЗКА (ПРОСТАЯ РАБОЧАЯ ВЕРСИЯ) ==================== -->
+    <!-- ==================== ВКЛАДКА: ЗАГРУЗКА (РАБОЧАЯ ВЕРСИЯ) ==================== -->
     <div class="tab-pane fade" id="upload">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5>📤 Загрузить файлы</h5>
+                <h5>📤 Загрузить документы</h5>
             </div>
             <div class="card-body">
-                <!-- ПРОСТАЯ HTML-ФОРМА - ТОЧНО РАБОТАЕТ -->
+                <!-- ПРОСТАЯ РАБОЧАЯ ФОРМА -->
                 <form action="/admin/upload" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Выберите файлы (можно несколько):</label>
+                        <label class="form-label">Выберите файлы (можно несколько):</label>
                         <input type="file" class="form-control" name="files[]" multiple required>
                         <div class="form-text">Поддерживаются: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, TXT</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Категория:</label>
+                        <label class="form-label">Категория:</label>
                         <select class="form-select" name="category" required>
                             <option value="">-- Выберите категорию --</option>
                             {% for key, name in settings.categories.items() %}
@@ -105,13 +104,10 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-success btn-lg w-100">
-                        📁 Загрузить выбранные файлы
-                    </button>
+                    <button type="submit" class="btn btn-success w-100">📁 Загрузить файлы</button>
                 </form>
-                
                 <div class="alert alert-info mt-3">
-                    <small>ℹ️ После нажатия кнопки страница обновится, и загруженные файлы появятся в списке выше.</small>
+                    <small>После загрузки страница обновится, и файлы появятся в списке.</small>
                 </div>
             </div>
         </div>
@@ -121,82 +117,39 @@
     <div class="tab-pane fade" id="settings">
         <div class="card">
             <div class="card-header bg-warning">
-                <h5>⚙️ Управление сайтом</h5>
+                <h5>⚙️ Настройки сайта</h5>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <span style="font-size: 2rem;">🎨</span>
-                                <h5 class="mt-2">Внешний вид</h5>
-                                <p class="text-muted">Изменить цвета, название сайта</p>
-                                <a href="/admin/settings" class="btn btn-outline-primary">Настроить</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <span style="font-size: 2rem;">📂</span>
-                                <h5 class="mt-2">Категории</h5>
-                                <p class="text-muted">Добавлять, удалять, переименовывать</p>
-                                <a href="/admin/settings" class="btn btn-outline-primary">Управлять</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="/admin/settings" class="btn btn-warning btn-lg">⚙️ Перейти к полным настройкам</a>
-                </div>
+            <div class="card-body text-center">
+                <p>Изменить название сайта, цвета и категории</p>
+                <a href="/admin/settings" class="btn btn-warning btn-lg">⚙️ Перейти в настройки</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Скрипт для переименования файлов -->
+<!-- Скрипт для переименования -->
 <script>
 function renameFile(category, filename) {
-    const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
-    const newName = prompt('Введите новое название файла:', nameWithoutExt);
-    
+    const newName = prompt('Введите новое название:', filename.replace(/\.[^/.]+$/, ""));
     if (newName && newName.trim() !== '') {
-        // Сохраняем расширение файла
         const ext = filename.includes('.') ? filename.split('.').pop() : '';
         const fullNewName = ext ? `${newName.trim()}.${ext}` : newName.trim();
-        
+
         if (fullNewName !== filename) {
             fetch(`/admin/rename/${category}/${encodeURIComponent(filename)}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ new_name: fullNewName })
             })
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    alert('✅ ' + data.message);
-                    location.reload();
-                } else {
-                    alert('❌ Ошибка: ' + data.error);
-                }
+                alert(data.message);
+                if (data.success) location.reload();
             })
-            .catch(error => {
-                alert('❌ Ошибка сети: ' + error);
-            });
+            .catch(e => alert('Ошибка: ' + e));
         }
     }
 }
-
-// Подтверждение удаления для ссылок (добавляем, если не было)
-document.querySelectorAll('.btn-danger').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        if (!confirm('Удалить этот файл?')) {
-            e.preventDefault();
-        }
-    });
-});
 </script>
 
 <style>
@@ -209,9 +162,6 @@ document.querySelectorAll('.btn-danger').forEach(btn => {
 @media (max-width: 768px) {
     .table-responsive {
         font-size: 12px;
-    }
-    .btn-sm {
-        font-size: 10px;
     }
 }
 </style>
