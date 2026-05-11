@@ -12,6 +12,8 @@
         }
         .navbar {
             background-color: {{ header_color }} !important;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
         .footer {
             background-color: {{ header_color }};
@@ -20,13 +22,23 @@
             margin-top: 2rem;
         }
         .logo-img {
-            height: 50px;
+            height: 70px;
             width: auto;
+            max-width: 200px;
             object-fit: contain;
         }
+        /* На телефонах чуть меньше */
         @media (max-width: 768px) {
             .logo-img {
+                height: 50px;
+                max-width: 150px;
+            }
+        }
+        /* На очень маленьких экранах ещё меньше */
+        @media (max-width: 480px) {
+            .logo-img {
                 height: 40px;
+                max-width: 120px;
             }
         }
     </style>
@@ -38,20 +50,20 @@
         <div class="container">
             <!-- Логотип слева -->
             <a class="navbar-brand" href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='logo.png') }}"
+                <img src="{{ url_for('static', filename='logo.jpg') }}"
                      alt="Логотип"
                      class="logo-img">
             </a>
 
             <!-- Название сайта по центру (только на компьютере) -->
             <div class="text-center flex-grow-1 d-none d-lg-block">
-                <span class="navbar-brand mb-0" style="font-size: 1.2rem;">{{ site_title }}</span>
+                <span class="navbar-brand mb-0" style="font-size: 1.3rem;">{{ site_title }}</span>
                 <small class="text-white-50 d-block">{{ site_subtitle }}</small>
             </div>
 
             <!-- Логотип справа -->
             <a class="navbar-brand" href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='logo.png') }}"
+                <img src="{{ url_for('static', filename='logo.jpg') }}"
                      alt="Логотип"
                      class="logo-img">
             </a>
