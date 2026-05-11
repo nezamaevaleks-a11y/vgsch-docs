@@ -1,155 +1,44 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ site_title }}{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* --- Стили для фона с логотипом --- */
-        body {
-            /* 1. Задаём фоновое изображение (логотип) */
-            background-image: url("{{ url_for('static', filename='logo.jpg') }}");
-            /* 2. Запрещаем повторение картинки */
-            background-repeat: no-repeat;
-            /* 3. Картинка масштабируется, занимая весь экран, но не обрезается */
-            background-size: cover;
-            /* 4. Картинка всегда по центру */
-            background-position: center center;
-            /* 5. Делаем фон фиксированным при прокрутке */
-            background-attachment: fixed;
-            /* 6. Важно! Здесь добавляем основной цвет фона, который будет виден,
-                  пока грузится картинка. А также как "подложка" для текста. */
-            background-color: {{ background_color }};
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+{% extends "base.html" %}
 
-        /* Добавляем тёмную полупрозрачную подложку под весь контент,
-           чтобы текст на фоне картинки был чётким и читаемым. */
-        .content-wrapper {
-            background-color: rgba(0, 0, 0, 0.65); /* 65% чёрный слой поверх картинки */
-            min-height: 100vh; /* Растягиваем на всю высоту экрана */
-        }
+{% block title %}Поиск - {{ site_title }}{% endblock %}
 
-        /* Стили для шапки и подвала делаем более прозрачными / контрастными */
-        .navbar, .footer {
-            background-color: rgba(0, 0, 0, 0.75) !important; /* Тёмный, но не полностью */
-        }
-
-        .footer a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-        }
-        .footer a:hover {
-            color: white;
-            text-decoration: underline;
-        }
-
-        /* Для карточек с документами, чтобы они выделялись на тёмном фоне */
-        .card {
-            background-color: rgba(33, 37, 41, 0.85); /* Полупрозрачный тёмный фон */
-            backdrop-filter: blur(4px); /* Лёгкое размытие */
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .card-title, .card-text {
-            color: #f8f9fa; /* Светлый текст */
-        }
-        /* Для простых текстовых блоков */
-        p, h1, h2, h3, h4, h5, h6, .lead, .text-muted {
-            color: #f8f9fa !important;
-        }
-        .text-muted {
-            color: #ced4da !important;
-        }
-
-        /* --- Логотип в шапке теперь не нужен, убираем или оставляем маленьким? --- */
-        /* Я его уберу, чтобы не мешал фоновому. Но можно и оставить очень маленьким. */
-        /* По желанию: скроем логотип, т.к. он теперь на фоне */
-        .navbar-brand img {
-            display: none;
-        }
-        /* Или вы можете удалить блок <a> с картинками из HTML ниже, я их закомментирую */
-        /* ------------------------------------------------------------ */
-
-        /* Адаптивность */
-        .search-form {
-            min-width: 250px;
-        }
-        @media (max-width: 768px) {
-            .search-form {
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
-    {% block extra_css %}{% endblock %}
-</head>
-<body>
-<div class="content-wrapper">
-    <!-- ШАПКА -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgba(0,0,0,0.75)">
-        <div class="container">
-            <!-- Название сайта по центру (можно оставить или убрать) -->
-            <div class="text-center flex-grow-1">
-                <span class="navbar-brand mb-0" style="font-size: 1.5rem;">{{ site_title }}</span>
-                <small class="text-white-50 d-block d-none d-md-block">{{ site_subtitle }}</small>
-            </div>
-
-            <!-- Кнопка меню для телефона -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Меню навигации (поиск и админка) -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item me-2">
-                        <form class="d-flex search-form" action="{{ url_for('search') }}" method="GET">
-                            <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="🔍 Поиск..." required>
-                            <button class="btn btn-outline-light btn-sm" type="submit">Найти</button>
-                        </form>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-outline-light btn-sm" href="{{ url_for('admin_login') }}">🔧 Админка</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Основной контент -->
-    <div class="container mt-4">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="mb-4">🔍 Результаты поиска</h1>
+        
+        {% if query %}
+            {% if results %}
+                <p>Найдено документов: <strong>{{ results|length }}</strong> по запросу "{{ query }}"</p>
+                <div class="row">
+                    {% for doc in results %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>{{ doc.name }}</h6>
+                                <small class="text-muted">
+                                    📁 {{ doc.category_name }} | 📏 {{ doc.size }} | {{ doc.modified_str }}
+                                </small>
+                                <div class="mt-2">
+                                    <a href="/view/{{ doc.category }}/{{ doc.name }}" class="btn btn-sm btn-info">👁️ Просмотр</a>
+                                    <a href="/download/{{ doc.category }}/{{ doc.name }}" class="btn btn-sm btn-primary">📥 Скачать</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <strong>Ничего не найдено</strong> по запросу "{{ query }}"
+                </div>
+                <a href="/" class="btn btn-primary">Вернуться на главную</a>
             {% endif %}
-        {% endwith %}
-
-        {% block content %}{% endblock %}
+        {% else %}
+            <div class="alert alert-info">
+                Введите поисковый запрос в строке выше
+            </div>
+        {% endif %}
     </div>
-
-    <!-- ПОДВАЛ -->
-    <footer class="footer mt-4">
-        <div class="container text-center">
-            <div>
-                <strong>{{ site_title }}</strong> © 2026 | {{ site_subtitle }}
-            </div>
-            <div class="mt-2">
-                <small>
-                    Разработал: Незамаев А.В. |
-                    <a href="#" onclick="return false;">Все права защищены</a>
-                </small>
-            </div>
-        </div>
-    </footer>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-{% block extra_js %}{% endblock %}
-</body>
-</html>
+{% endblock %}
