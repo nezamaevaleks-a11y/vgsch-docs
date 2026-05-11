@@ -18,8 +18,16 @@
         .footer {
             background-color: {{ header_color }};
             color: white;
-            padding: 1rem 0;
+            padding: 1.5rem 0;
             margin-top: 2rem;
+        }
+        .footer a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: white;
+            text-decoration: underline;
         }
         .logo-img {
             height: 70px;
@@ -114,10 +122,20 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Подвал -->
+    <!-- ПОДВАЛ (ОБНОВЛЁННЫЙ) -->
     <footer class="footer mt-4">
         <div class="container text-center">
-            <small>{{ site_title }} &copy; 2024 | {{ site_subtitle }}</small>
+            <!-- Основная информация -->
+            <div>
+                <strong>{{ site_title }}</strong> © 2026 | {{ site_subtitle }}
+            </div>
+            <!-- Разработчик -->
+            <div class="mt-2">
+                <small>
+                    Разработал: Незамаев А.В. |
+                    <a href="#" onclick="return false;">Все права защищены</a>
+                </small>
+            </div>
         </div>
     </footer>
 
