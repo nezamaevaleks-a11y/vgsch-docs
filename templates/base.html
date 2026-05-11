@@ -35,14 +35,20 @@
             max-width: 200px;
             object-fit: contain;
         }
-        /* На телефонах чуть меньше */
+        /* Поиск в шапке */
+        .search-form {
+            min-width: 250px;
+        }
         @media (max-width: 768px) {
             .logo-img {
                 height: 50px;
                 max-width: 150px;
             }
+            .search-form {
+                width: 100%;
+                margin-top: 10px;
+            }
         }
-        /* На очень маленьких экранах ещё меньше */
         @media (max-width: 480px) {
             .logo-img {
                 height: 40px;
@@ -53,7 +59,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- ШАПКА С ЛОГОТИПАМИ -->
+    <!-- ШАПКА -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: {{ header_color }}">
         <div class="container">
             <!-- Логотип слева -->
@@ -63,35 +69,28 @@
                      class="logo-img">
             </a>
 
-            <!-- Название сайта по центру (только на компьютере) -->
-            <div class="text-center flex-grow-1 d-none d-lg-block">
-                <span class="navbar-brand mb-0" style="font-size: 1.3rem;">{{ site_title }}</span>
-                <small class="text-white-50 d-block">{{ site_subtitle }}</small>
+            <!-- Название сайта по центру -->
+            <div class="text-center flex-grow-1">
+                <span class="navbar-brand mb-0" style="font-size: 1.2rem;">{{ site_title }}</span>
+                <small class="text-white-50 d-block d-none d-md-block">{{ site_subtitle }}</small>
             </div>
-
-            <!-- Логотип справа -->
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='logo.jpg') }}"
-                     alt="Логотип"
-                     class="logo-img">
-            </a>
 
             <!-- Кнопка меню для телефона -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Меню навигации -->
+            <!-- Меню навигации (только поиск и админка) -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    {% for key, name in categories.items() %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('show_documents', category=key) }}">{{ name }}</a>
+                    <!-- Форма поиска -->
+                    <li class="nav-item me-2">
+                        <form class="d-flex search-form" action="{{ url_for('search') }}" method="GET">
+                            <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="🔍 Поиск..." required>
+                            <button class="btn btn-outline-light btn-sm" type="submit">Найти</button>
+                        </form>
                     </li>
-                    {% endfor %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search') }}">🔍 Поиск</a>
-                    </li>
+                    <!-- Админка -->
                     <li class="nav-item">
                         <a class="nav-link btn btn-outline-light btn-sm" href="{{ url_for('admin_login') }}">🔧 Админка</a>
                     </li>
@@ -99,12 +98,6 @@
             </div>
         </div>
     </nav>
-
-    <!-- Название сайта для мобильных телефонов (под шапкой) -->
-    <div class="text-center py-2 d-lg-none" style="background-color: {{ header_color }}; color: white;">
-        <strong>{{ site_title }}</strong>
-        <br><small>{{ site_subtitle }}</small>
-    </div>
 
     <!-- Основной контент -->
     <div class="container mt-4">
@@ -122,14 +115,12 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- ПОДВАЛ (ОБНОВЛЁННЫЙ) -->
+    <!-- ПОДВАЛ -->
     <footer class="footer mt-4">
         <div class="container text-center">
-            <!-- Основная информация -->
             <div>
                 <strong>{{ site_title }}</strong> © 2026 | {{ site_subtitle }}
             </div>
-            <!-- Разработчик -->
             <div class="mt-2">
                 <small>
                     Разработал: Незамаев А.В. |

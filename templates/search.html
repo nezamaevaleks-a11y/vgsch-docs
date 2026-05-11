@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="mb-4">🔍 Результаты поиска</h1>
+
+        {% if query %}
+            {% if results %}
+                <p>Найдено документов: <strong>{{ results|length }}</strong> по запросу "{{ query }}"</p>
+                <div class="row">
+                    {% for doc in results %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>{{ doc.name }}</h6>
+                                <small class="text-muted">
+                                    📁 {{ doc.category_name }} | 📏 {{ doc.size }} | {{ doc.modified_str }}
+                                </small>
+                                <div class="mt-2">
+                                    <a href="/view/{{ doc.category }}/{{ doc.name }}" class="btn btn-sm btn-info">👁️ Просмотр</a>
+                                    <a href="/download/{{ doc.category }}/{{ doc.name }}" class="btn btn-sm btn-primary">📥 Скачать</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <strong>Ничего не найдено</strong> по запросу "{{ query }}"
+                </div>
+                <a href="/" class="btn btn-primary">Вернуться на главную</a>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                Введите поисковый запрос в строке выше
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
