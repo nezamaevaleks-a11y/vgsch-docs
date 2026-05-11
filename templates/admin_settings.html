@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки сайта{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>⚙️ Настройки сайта</h1>
+    <a href="/admin/dashboard" class="btn btn-secondary">← Назад в админку</a>
+</div>
+
+<form method="POST" id="settingsForm">
+    <!-- Основные настройки -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5>📝 Основные настройки</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Название сайта:</label>
+                <input type="text" class="form-control" name="site_title" value="{{ settings.site_title }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Подзаголовок:</label>
+                <input type="text" class="form-control" name="site_subtitle" value="{{ settings.site_subtitle }}">
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Цвет фона:</label>
+                    <input type="color" class="form-control" name="background_color" value="{{ settings.background_color }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Цвет шапки:</label>
+                    <input type="color" class="form-control" name="header_color" value="{{ settings.header_color }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Управление категориями -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5>📂 Категории документов</h5>
+        </div>
+        <div class="card-body">
+            <div id="categories-container">
+                {% for key, name in settings.categories.items() %}
+                <div class="category-row mb-2 p-2 border rounded">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" name="category_keys[]" value="{{ key }}" placeholder="Ключ (на англ.)" required>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" name="category_name_{{ key }}" value="{{ name }}" placeholder="Название категории" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeCategory(this)">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-success mt-2" onclick="addCategory()">+ Добавить категорию</button>
+            <p class="text-muted small mt-2">⚠️ Ключ категории должен быть на английском и состоять из букв без пробелов!</p>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-warning btn-lg w-100" id="saveBtn">💾 Сохранить все настройки</button>
+</form>
+
+<script>
+function addCategory() {
+    const container = document.getElementById('categories-container');
+    const newId = 'new_' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'category-row mb-2 p-2 border rounded';
+    div.innerHTML = `
+        <div class="row">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="category_keys[]" placeholder="Ключ (на англ.)" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="category_name_${newId}" placeholder="Название категории" required>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeCategory(this)">🗑️</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function removeCategory(btn) {
+    if (document.querySelectorAll('.category-row').length > 1) {
+        btn.closest('.category-row').remove();
+    } else {
+        alert('Нельзя удалить последнюю категорию!');
+    }
+}
+
+// Предпросмотр цветов
+document.querySelectorAll('input[type="color"]').forEach(input => {
+    input.addEventListener('change', () => {
+        document.body.style.backgroundColor = document.querySelector('[name="background_color"]').value;
+        document.querySelector('nav').style.backgroundColor = document.querySelector('[name="header_color"]').value;
+    });
+});
+</script>
+
+<style>
+.category-row {
+    background: #f8f9fa;
+    transition: all 0.3s;
+}
+.category-row:hover {
+    background: #e9ecef;
+}
+</style>
+{% endblock %}

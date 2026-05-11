@@ -1,78 +1,173 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>🔧 Админ-панель</h1>
-            <a href="/" class="btn btn-outline-primary">На сайт</a>
-        </div>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Админ-панель{% endblock %}
 
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>🔧 Админ-панель</h1>
+    <div>
+        <a href="/" class="btn btn-outline-primary">На сайт</a>
+        <a href="/admin/logout" class="btn btn-outline-danger">Выйти</a>
+    </div>
+</div>
+
+<!-- Сообщения -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Вкладки -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#files">📁 Документы</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#upload">📤 Загрузка</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#settings">⚙️ Настройки сайта</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Вкладка: Документы -->
+    <div class="tab-pane fade show active" id="files">
+        {% for category_key, category_name in settings.categories.items() %}
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5>📤 Загрузить документ</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label>Файл:</label>
-                        <input type="file" class="form-control" name="file" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Категория:</label>
-                        <select class="form-select" name="category" required>
-                            <option value="">Выберите категорию</option>
-                            {% for key, name in categories.items() %}
-                            <option value="{{ key }}">{{ name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-success">Загрузить</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="card">
             <div class="card-header bg-secondary text-white">
-                <h5>📋 Все документы</h5>
+                <h5>{{ category_name }}</h5>
             </div>
             <div class="card-body">
-                {% for category_key, category_name in categories.items() %}
-                <h6 class="mt-3">{{ category_name }}</h6>
                 {% if documents[category_key] %}
                 <table class="table table-sm">
-                    <thead><tr><th>Название</th><th>Размер</th><th>Дата</th><th>Действия</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Размер</th>
+                            <th>Дата</th>
+                            <th>👁️</th>
+                            <th>Действия</th>
+                        </td>
+                    </thead>
                     <tbody>
                         {% for doc in documents[category_key] %}
                         <tr>
                             <td>{{ doc.name }}</td>
                             <td>{{ doc.size }}</td>
-                            <td>{{ doc.modified }}</td>
+                            <td>{{ doc.modified_str }}</td>
+                            <td>{{ doc.views }}</td>
                             <td>
-                                <a href="/download/{{ category_key }}/{{ doc.name }}" class="btn btn-primary btn-sm">Скачать</a>
-                                <a href="/admin/delete/{{ category_key }}/{{ doc.name }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить?')">Удалить</a>
+                                <button class="btn btn-warning btn-sm" onclick="renameFile('{{ category_key }}', '{{ doc.name }}')">✏️</button>
+                                <a href="/admin/delete/{{ category_key }}/{{ doc.name }}" class="btn btn-danger btn-sm" onclick="return confirm('Удалить?')">🗑️</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% else %}<p class="text-muted">Нет документов</p>{% endif %}
-                {% endfor %}
+                {% else %}
+                <p class="text-muted">Нет документов</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Вкладка: Загрузка -->
+    <div class="tab-pane fade" id="upload">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5>📤 Загрузить файлы</h5>
+            </div>
+            <div class="card-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Файлы (можно выбрать несколько):</label>
+                        <input type="file" class="form-control" id="files" name="files[]" multiple required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Категория:</label>
+                        <select class="form-select" id="category" required>
+                            <option value="">Выберите категорию</option>
+                            {% for key, name in settings.categories.items() %}
+                            <option value="{{ key }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success" id="uploadBtn">📁 Загрузить</button>
+                </form>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Вкладка: Настройки (будет отдельный файл) -->
+    <div class="tab-pane fade" id="settings">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5>⚙️ Настройки сайта</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Для изменения настроек перейдите в раздел <a href="/admin/settings">Настройки →</a></p>
+                <a href="/admin/settings" class="btn btn-warning">Перейти к настройкам</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function renameFile(category, filename) {
+    const newName = prompt('Введите новое название:', filename.replace(/\.[^/.]+$/, ''));
+    if (newName && newName !== filename.replace(/\.[^/.]+$/, '')) {
+        fetch(`/admin/rename/${category}/${encodeURIComponent(filename)}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({new_name: newName})
+        })
+        .then(r => r.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) location.reload();
+        });
+    }
+}
+
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const files = document.getElementById('files').files;
+    const category = document.getElementById('category').value;
+    
+    if (!category) {
+        alert('Выберите категорию!');
+        return;
+    }
+    
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files[]', files[i]);
+    }
+    formData.append('category', category);
+    
+    const btn = document.getElementById('uploadBtn');
+    btn.disabled = true;
+    btn.textContent = 'Загрузка...';
+    
+    fetch('/admin/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) location.reload();
+    })
+    .catch(e => alert('Ошибка: ' + e))
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = '📁 Загрузить';
+    });
+});
+</script>
+{% endblock %}
