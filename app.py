@@ -34,15 +34,20 @@ DEFAULT_SETTINGS = {
 
 # ========== ФУНКЦИИ ДЛЯ РАБОТЫ С НАСТРОЙКАМИ ==========
 def load_settings():
-    """Загружает настройки из файла"""
-    if os.path.exists(SETTINGS_FILE):
-        try:
-            with open(SETTINGS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except:
-            return DEFAULT_SETTINGS.copy()
-    return DEFAULT_SETTINGS.copy()
-
+    """Загружает настройки из переменных окружения Render"""
+    return {
+        "site_title": os.environ.get("SITE_TITLE", "Филиал ВГСО \"Северо-Запада\""),
+        "site_subtitle": os.environ.get("SITE_SUBTITLE", "База документов оперативного состава"),
+        "background_color": os.environ.get("BG_COLOR", "#0A2F6C"),
+        "header_color": os.environ.get("HEADER_COLOR", "#051B40"),
+        "categories": {
+            "prikazy": os.environ.get("CAT_PRIKAZY", "Приказы"),
+            "normativka": os.environ.get("CAT_NORM", "Нормативная документация"),
+            "posobiya": os.environ.get("CAT_POSOB", "Пособия и методички"),
+            "docs": os.environ.get("CAT_DOCS", "Общая документация"),
+            "other": os.environ.get("CAT_OTHER", "Другие документы")
+        }
+    }
 
 def save_settings(settings):
     """Сохраняет настройки в файл"""
